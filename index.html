@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Student Management System</title>
+<style>
+:root {
+  --card: #ffffff; --text: #333333; --muted: #777777; --border: #dddddd;
+  --panel: #f7f7ff; --accent: #667eea; --accent2: #764ba2; --err: #d63031;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --card: #23223a; --text: #ecebff; --muted: #a9a7c9; --border: #45436b;
+    --panel: #2c2b4a; --accent: #8ea0ff; --err: #ff7675;
+  }
+}
+:root[data-theme="dark"] {
+  --card: #23223a; --text: #ecebff; --muted: #a9a7c9; --border: #45436b;
+  --panel: #2c2b4a; --accent: #8ea0ff; --err: #ff7675;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  min-height: 100vh; display: flex; justify-content: center; align-items: center;
+  background: linear-gradient(135deg, #667eea, #764ba2); padding: 20px;
+}
+.container {
+  width: 100%; max-width: 500px; background: var(--card); color: var(--text);
+  padding: 35px; border-radius: 18px; box-shadow: 0 15px 40px rgba(0,0,0,.25);
+}
+h1 { text-align: center; font-size: 26px; margin-bottom: 8px; }
+.subtitle { text-align: center; color: var(--muted); margin-bottom: 30px; }
+.input-group { margin-bottom: 18px; }
+label { display: block; margin-bottom: 7px; font-weight: bold; }
+input {
+  width: 100%; padding: 13px; border: 2px solid var(--border); border-radius: 8px;
+  font-size: 16px; outline: none; transition: .3s; background: var(--card); color: var(--text);
+}
+input:focus { border-color: var(--accent); }
+button {
+  width: 100%; padding: 14px; border: none; border-radius: 8px;
+  background: linear-gradient(135deg, #667eea, #764ba2); color: #fff;
+  font-size: 17px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: .3s;
+}
+button:hover { transform: translateY(-2px); box-shadow: 0 7px 15px rgba(102,126,234,.4); }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.result {
+  display: none; margin-top: 30px; padding: 22px; background: var(--panel);
+  border-radius: 12px; border-left: 5px solid var(--accent);
+}
+.result h2 { margin-bottom: 15px; }
+.result p { margin: 10px 0; font-size: 16px; }
+.percentage { font-size: 24px !important; font-weight: bold; color: var(--accent); }
+.error { color: var(--err); text-align: center; margin-top: 15px; display: none; }
+.btn-alt { background: var(--panel); color: var(--text); border: 2px solid var(--accent); margin-top: 22px; }
+.code-panel { display: none; margin-top: 15px; }
+.code-bar { display: flex; gap: 10px; }
+.code-bar button { margin-top: 0; padding: 10px; font-size: 15px; }
+pre#code {
+  margin-top: 12px; padding: 14px; background: #1e1e2e; color: #cdd6f4; border-radius: 10px;
+  font: 13px/1.5 Consolas, Menlo, monospace; max-height: 420px; overflow: auto;
+  white-space: pre; tab-size: 2;
+}
+pre#code { font-family: Consolas, Menlo, monospace; }
+.k-c { color: #6c7086; font-style: italic; }
+.k-tag { color: #f38ba8; }
+.k-attr { color: #fab387; }
+.k-str { color: #a6e3a1; }
+.k-kw { color: #cba6f7; }
+.k-num { color: #fab387; }
+.k-fn { color: #89b4fa; }
+.k-sel { color: #f9e2af; }
+.k-prop { color: #89dceb; }
+.k-doc { color: #cba6f7; }
+pre#code { position: relative; }
+.cpp-line {
+  display: inline-block; min-width: 100%; box-sizing: border-box;
+  background: rgba(250, 179, 135, 0.2); box-shadow: inset 4px 0 0 #fab387;
+}
+.cpp-badge {
+  margin-left: 12px; padding: 1px 8px; border-radius: 10px; background: #fab387;
+  color: #1e1e2e; font-weight: bold; font-size: 11px; font-style: normal;
+}
+.legend { margin-top: 12px; font-size: 14px; color: var(--muted); }
+.legend .swatch {
+  display: inline-block; width: 22px; height: 12px; border-radius: 3px; vertical-align: middle;
+  margin-right: 6px; background: rgba(250, 179, 135, 0.35); box-shadow: inset 4px 0 0 #fab387;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🎓 Student Management System</h1>
+  <p class="subtitle">Enter student information and marks</p>
+
+  <div class="input-group">
+    <label for="name">Student Name</label>
+    <input type="text" id="name" placeholder="Enter student name">
+  </div>
+  <div class="input-group">
+    <label for="rollNo">Roll Number</label>
+    <input type="number" id="rollNo" placeholder="Enter roll number">
+  </div>
+  <div class="input-group">
+    <label for="computer">Computer Marks</label>
+    <input type="number" id="computer" min="0" max="100" placeholder="Enter marks out of 100">
+  </div>
+  <div class="input-group">
+    <label for="math">Math Marks</label>
+    <input type="number" id="math" min="0" max="100" placeholder="Enter marks out of 100">
+  </div>
+  <div class="input-group">
+    <label for="english">English Marks</label>
+    <input type="number" id="english" min="0" max="100" placeholder="Enter marks out of 100">
+  </div>
+
+  <button onclick="calculateResult()">Calculate Result</button>
+  <p class="error" id="error" role="alert"></p>
+
+  <div class="result" id="result">
+    <h2>📋 Student Information</h2>
+    <p><strong>Name:</strong> <span id="resultName"></span></p>
+    <p><strong>Roll Number:</strong> <span id="resultRoll"></span></p>
+    <p><strong>Total Marks:</strong> <span id="resultTotal"></span> / 300</p>
+    <p class="percentage">Percentage: <span id="resultPercentage"></span>%</p>
+  </div>
+
+  <button class="btn-alt" id="toggleCode" onclick="toggleCode()">&lt;/&gt; View Source Code</button>
+  <div class="code-panel" id="codePanel">
+    <div class="code-bar">
+      <button id="copyBtn" onclick="copyCode()">Copy Code</button>
+    </div>
+    <p class="legend"><span class="swatch"></span>Orange bands = the part that comes from your C++ program (input, calculation, output)</p>
+    <pre id="code"></pre>
+  </div>
+</div>
+
+<script>
+// Snapshot of the full page code, taken before the user interacts with it
+const PAGE_SOURCE = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
+// ---- Tiny syntax highlighter (HTML + CSS + JS) ----
+function esc(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function sp(cls, s) {
+  return "<span class=\"" + cls + "\">" + esc(s) + "</span>";
+}
+function tok(src, re, fn, gap) {
+  let out = "", last = 0, m;
+  re.lastIndex = 0;
+  while ((m = re.exec(src))) {
+    out += gap(src.slice(last, m.index)) + fn(m);
+    last = re.lastIndex;
+    if (m[0] === "") re.lastIndex++;
+  }
+  return out + gap(src.slice(last));
+}
+
+const jsRe = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|(\x22(?:\\.|[^\x22\\\n])*\x22|\x27(?:\\.|[^\x27\\\n])*\x27|\x60(?:\\.|[^\x60\\])*\x60)|\b(const|let|var|function|return|if|else|for|while|new|true|false|null|try|catch|async|await|of|in)\b|\b(\d+\.?\d*)\b|\b([A-Za-z_$][\w$]*)(?=\()/g;
+function hlJS(src) {
+  return tok(src, jsRe, m =>
+    m[1] ? sp("k-c", m[0]) : m[2] ? sp("k-str", m[0]) : m[3] ? sp("k-kw", m[0]) :
+    m[4] ? sp("k-num", m[0]) : sp("k-fn", m[0]), esc);
+}
+
+const cssRe = /(\/\*[\s\S]*?\*\/)|([^{};]+(?=\{))|([-\w]+)(\s*:)([^;{}]*)/g;
+const cssValRe = /(#[0-9a-fA-F]{3,8}\b)|(-?\d*\.?\d+(?:px|em|rem|%|vh|vw|s|deg)?)|([a-z-]+)(?=\()|(\x22[^\x22]*\x22)/g;
+function hlCSS(src) {
+  return tok(src, cssRe, m => {
+    if (m[1]) return sp("k-c", m[0]);
+    if (m[2]) return sp("k-sel", m[0]);
+    const val = tok(m[5], cssValRe, v =>
+      v[1] || v[2] ? sp("k-num", v[0]) : v[3] ? sp("k-fn", v[0]) : sp("k-str", v[0]), esc);
+    return sp("k-prop", m[3]) + esc(m[4]) + val;
+  }, esc);
+}
+
+const tagRe = /(<!-{2}[\s\S]*?-{2}>)|(<!DOCTYPE[^>]*>)|(<\/?)([A-Za-z][\w-]*)((?:\s+[^\s=>\/]+(?:=(?:\x22[^\x22]*\x22|\x27[^\x27]*\x27|[^\s>]+))?)*)\s*(\/?>)/gi;
+const attrRe = /([^\s=]+)(=)?(\x22[^\x22]*\x22|\x27[^\x27]*\x27)?/g;
+function hlHTML(src) {
+  return tok(src, tagRe, m => {
+    if (m[1]) return sp("k-c", m[0]);
+    if (m[2]) return sp("k-doc", m[0]);
+    const attrs = tok(m[5], attrRe, a =>
+      sp("k-attr", a[1]) + (a[2] ? esc(a[2]) : "") + (a[3] ? sp("k-str", a[3]) : ""), esc);
+    return sp("k-tag", m[3] + m[4]) + attrs + sp("k-tag", m[6]);
+  }, esc);
+}
+
+const blockRe = /(<style>)([\s\S]*?)(<\/style>)|(<script>)([\s\S]*?)(<\/script>)/g;
+function highlight(src) {
+  return tok(src, blockRe, m =>
+    m[1] ? hlHTML(m[1]) + hlCSS(m[2]) + hlHTML(m[3])
+         : hlHTML(m[4]) + hlJS(m[5]) + hlHTML(m[6]), hlHTML);
+}
+
+// Wrap the lines between the C++ markers in a highlighted band
+function markCpp(html) {
+  let on = false;
+  return html.split("\n").map(line => {
+    const text = line.replace(/<[^>]+>/g, "");
+    const m = text.match(/\/\/ @cpp-(start|end)\b/);
+    if (m && m[1] === "start") on = true;
+    const badge = m && m[1] === "start" ? "<span class=\"cpp-badge\">C++</span>" : "";
+    const out = on ? "<span class=\"cpp-line\">" + line + badge + "</span>" : line;
+    if (m && m[1] === "end") on = false;
+    return out;
+  }).join("\n");
+}
+
+function toggleCode() {
+  const panel = document.getElementById("codePanel");
+  const btn = document.getElementById("toggleCode");
+  const open = panel.style.display === "block";
+  if (!open) {
+    const pre = document.getElementById("code");
+    pre.innerHTML = markCpp(highlight(PAGE_SOURCE));
+    const first = pre.querySelector(".cpp-line");
+    if (first) setTimeout(() => { pre.scrollTop = Math.max(0, first.offsetTop - 30); }, 0);
+  }
+  panel.style.display = open ? "none" : "block";
+  btn.textContent = open ? "</> View Source Code" : "Hide Source Code";
+}
+
+async function copyCode() {
+  const btn = document.getElementById("copyBtn");
+  try {
+    await navigator.clipboard.writeText(PAGE_SOURCE);
+    btn.textContent = "Copied!";
+  } catch (e) {
+    const range = document.createRange();
+    range.selectNodeContents(document.getElementById("code"));
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    btn.textContent = "Selected - press Ctrl+C";
+  }
+  setTimeout(() => (btn.textContent = "Copy Code"), 2000);
+}
+
+function calculateResult() {
+  // @cpp-start: INPUT - in C++ these values were read with cin
+  const name = document.getElementById("name").value.trim();   // C++: getline(cin, name);
+  const rollNo = document.getElementById("rollNo").value;      // C++: cin >> rollNo;
+  const raw = ["computer", "math", "english"].map(id => document.getElementById(id).value);
+  const [computer, math, english] = raw.map(Number);           // C++: cin >> marks1 >> marks2 >> marks3;
+  // @cpp-end
+  const error = document.getElementById("error");
+  const result = document.getElementById("result");
+
+  error.style.display = "none";
+  result.style.display = "none";
+
+  if (name === "" || rollNo === "" || raw.includes("")) {
+    error.textContent = "Please fill in all fields.";
+    error.style.display = "block";
+    return;
+  }
+  if ([computer, math, english].some(m => m < 0 || m > 100)) {
+    error.textContent = "Marks must be between 0 and 100.";
+    error.style.display = "block";
+    return;
+  }
+
+  // @cpp-start: CALCULATION - exactly the same formulas as the C++ program
+  const total = computer + math + english;      // C++: total = marks1 + marks2 + marks3;
+  const percentage = (total / 300) * 100;       // C++: percentage = (total / 300) * 100;
+  // @cpp-end
+
+  // @cpp-start: OUTPUT - in C++ these values were printed with cout
+  document.getElementById("resultName").textContent = name;              // C++: cout << "Name: " << name;
+  document.getElementById("resultRoll").textContent = rollNo;            // C++: cout << "Roll Number: " << rollNo;
+  document.getElementById("resultTotal").textContent = total;            // C++: cout << "Total Marks: " << total;
+  document.getElementById("resultPercentage").textContent = percentage.toFixed(2);  // C++: cout << "Percentage: " << percentage;
+  // @cpp-end
+  result.style.display = "block";
+}
+</script>
+</body>
+</html>
